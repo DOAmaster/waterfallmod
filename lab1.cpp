@@ -44,8 +44,9 @@
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 
-#define MAX_PARTICLES 1
+#define MAX_PARTICLES 1000
 #define GRAVITY 0.1
+
 
 //X Windows variables
 Display *dpy;
@@ -69,10 +70,16 @@ struct Particle {
 	Vec velocity;
 };
 
-struct Game {
+class Game {
+    public:
 	Shape box;
-	Particle particle;
+	Particle particle[MAX_PARTICLES];
 	int n;
+
+	Game(){
+
+	    n = 0;
+	}
 };
 
 //Function prototypes
@@ -173,17 +180,19 @@ void init_opengl(void)
 	glClearColor(0.1, 0.1, 0.1, 1.0);
 }
 
+#define rnd() (float)rand() / (float)RAND_MAX
+
 void makeParticle(Game *game, int x, int y)
 {
 	if (game->n >= MAX_PARTICLES)
 		return;
-	std::cout << "makeParticle() " << x << " " << y << std::endl;
+	//std::cout << "makeParticle() " << x << " " << y << std::endl;
 	//position of particle
-	Particle *p = &game->particle;
+	Particle *p = &game->particle[game->n];
 	p->s.center.x = x;
 	p->s.center.y = y;
-	p->velocity.y = -4.0;
-	p->velocity.x =  1.0;
+	p->velocity.y = rnd() * 1.0 - .5;
+	p->velocity.x = rnd() * 1.0 - .5;
 	game->n++;
 }
 
@@ -200,6 +209,10 @@ void check_mouse(XEvent *e, Game *game)
 		if (e->xbutton.button==1) {
 			//Left button was pressed
 			int y = WINDOW_HEIGHT - e->xbutton.y;
+			makeParticle(game, e->xbutton.x, y);	
+			makeParticle(game, e->xbutton.x, y);
+			makeParticle(game, e->xbutton.x, y);
+			makeParticle(game, e->xbutton.x, y);
 			makeParticle(game, e->xbutton.x, y);
 			return;
 		}
@@ -214,6 +227,8 @@ void check_mouse(XEvent *e, Game *game)
 		savey = e->xbutton.y;
 		if (++n < 10)
 			return;
+			int y = WINDOW_HEIGHT - e->xbutton.y;
+			makeParticle(game, e->xbutton.x, y);
 	}
 }
 
@@ -240,26 +255,37 @@ void movement(Game *game)
 	if (game->n <= 0)
 		return;
 
-	p = &game->particle;
-	p->s.center.x += p->velocity.x;
-	p->s.center.y += p->velocity.y;
+	for (int i = 0; i < game->n; i++){
 
+		p = &game->particle[i];
+		p->velocity.y -= GRAVITY;
+		p->s.center.x += p->velocity.x;
+		p->s.center.y += p->velocity.y;
+
+	
 	//check for collision with shapes...
 	//Shape *s;
 
 
 	//changeass
 	//checks for partical hitting the shape ss then reverses the velocity of the partical 
-	Shape *s = &game->box;
-	if(p->s.center.y < s->center.y + s->height){
-	    p->velocity.y = -p->velocity.y;
-	}
+		Shape *s = &game->box;
+
+		if(p->s.center.y < s->center.y + s->height &&
+			p->s.center.x > s->center.x - s ->width &&
+			p->s.center.x < s->center.x + s->width) {
+				p->s.center.y = s->center.y + s->height;
+				p->velocity.y = -p->velocity.y;
+				p->velocity.y *= 0.5;
+		}
 	
 
 	//check for off-screen
-	if (p->s.center.y < 0.0 || p->s.center.y > WINDOW_HEIGHT) {
-		std::cout << "off screen" << std::endl;
-		game->n = 0;
+		if (p->s.center.y < 0.0 || p->s.center.y > WINDOW_HEIGHT) {
+			//std::cout << "off screen" << std::endl;
+			game->particle[i] = game->particle[ game->n-1 ];
+			game->n--;
+		}
 	}
 }
 
@@ -269,7 +295,7 @@ void render(Game *game)
 	glClear(GL_COLOR_BUFFER_BIT);
 	//Draw shapes...
 
-	//draw box
+	//draw boxes
 	Shape *s;
 	glColor3ub(90,140,90);
 	s = &game->box;
@@ -285,10 +311,13 @@ void render(Game *game)
 	glEnd();
 	glPopMatrix();
 
+
 	//draw all particles here
+	
+	for (int i = 0; i < game->n; i++) {
 	glPushMatrix();
 	glColor3ub(150,160,220);
-	Vec *c = &game->particle.s.center;
+	Vec *c = &game->particle[i].s.center;
 	w = 2;
 	h = 2;
 	glBegin(GL_QUADS);
@@ -298,6 +327,9 @@ void render(Game *game)
 		glVertex2i(c->x+w, c->y-h);
 	glEnd();
 	glPopMatrix();
+	}
+
+
 }
 
 
