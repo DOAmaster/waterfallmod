@@ -72,13 +72,13 @@ struct Particle {
 
 class Game {
     public:
-	Shape box[4];
+	Shape box[6];
 	Particle particle[MAX_PARTICLES];
 	int n;
 
 	Game(){
 
-	    n = 0;
+		n = 0;
 	}
 };
 
@@ -103,12 +103,12 @@ int main(void)
 	game.n=0;
 
 	//declare a box shape
-	for (int i = 0; i < 5; i++) {
-		game.box[i].width = 100;
-		game.box[i].height = 15;
-		game.box[i].center.x = 120 + 5*65 - i * 50;
-		game.box[i].center.y = 500 - 5*60 + i * 100;
-	}
+//	for (int i = 0; i < 6; i++) {
+//		game.box[i].width = 100;
+//		game.box[i].height = 15;
+//		game.box[i].center.x = 120 + 5*65 - ( i * 30 );
+//		game.box[i].center.y = 500 - 5*60 + ( i * 50 );
+//	}
 
 	//start animation
 	while (!done) {
@@ -130,7 +130,7 @@ void set_title(void)
 {
 	//Set the window title bar.
 	XMapWindow(dpy, win);
-	XStoreName(dpy, win, "335 Lab1   LMB for particle");
+	XStoreName(dpy, win, "335 Lab1 DAlden LMB or B for particals");
 }
 
 void cleanupXWindows(void)
@@ -229,38 +229,44 @@ void check_mouse(XEvent *e, Game *game)
 		savey = e->xbutton.y;
 		if (++n < 10)
 			return;
-			int y = WINDOW_HEIGHT - e->xbutton.y;
+		//	int y = WINDOW_HEIGHT - e->xbutton.y;
 			//makeParticle(game, e->xbutton.x, y);
 	}
 }
 
-int check_keys(XEvent *e, Game *game)
-{
+int check_keys(XEvent *e, Game *game) {
 	//Was there input from the keyboard?
 	if (e->type == KeyPress) {
 		int key = XLookupKeysym(&e->xkey, 0);
-		bool spawner = false;
 		if (key == XK_Escape) {
 			return 1;
 		}
 		if (key == 'b') {
-			int y = WINDOW_HEIGHT - e->xbutton.y;
-			
-			spawner = true;
-			while(spawner) {
-				int count;
-				makeParticle(game, 80, 450);
-				count++;
-				if (count > 10) {
-					spawner = false;
-					}
-				}	
+
+				makeParticle(game, 350, 600);
+
+		//	spawner = true;
+		//	while(spawner) {
+		//		makeParticle(game, 80, 750);
+			//	if (game->n >= MAX_PARTICLES) {
+			//	spawner = false;
+		//		}
+		//		break;
+				}
+
+			//	int count;
+			//	makeParticle(game, 80, 450);
+			//	count++;
+			//	if (count > game->n) {
+			//		spawner = false;
+			//		}
+			//	}	
 		}
 		//You may check other keys here.
 
 
 
-	}
+	
 	return 0;
 }
 
@@ -288,7 +294,7 @@ void movement(Game *game)
 
 	Shape *s;
  
-		for (int j = 0; j < 4; j++) {
+		for (int j = 0; j < 5; j++) {
 			s = &game->box[j];
 
 			if(p->s.center.y < s->center.y + s->height &&
@@ -323,7 +329,16 @@ void render(Game *game)
 	//	game.box[i].center.x = 120 + 5*65 - i * 50;
 	//	game.box[i].center.y = 500 - 5*60 + i * 100;
 	
-	for( int i = 0; i < 4; i++) {
+	//filling box array 
+	for (int i = 0; i < 6; i++) {
+		game->box[i].width = 100;
+		game->box[i].height = 15;
+		game->box[i].center.x = 120 + 5*65 - ( i * 30 );
+		game->box[i].center.y = 500 - 5*60 + ( i * 50 );
+	}
+
+	//drawing boxes
+	for( int i = 0; i < 5; i++) {
 		glColor3ub(90,140,90);
 		s = &game->box[i];
 		glPushMatrix();
