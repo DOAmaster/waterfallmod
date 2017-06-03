@@ -1,4 +1,4 @@
-//modified by:
+//modified by: Derrick Alden
 //date:
 //purpose:
 //
@@ -72,7 +72,7 @@ struct Particle {
 
 class Game {
     public:
-	Shape box;
+	Shape box[4];
 	Particle particle[MAX_PARTICLES];
 	int n;
 
@@ -103,10 +103,12 @@ int main(void)
 	game.n=0;
 
 	//declare a box shape
-	game.box.width = 100;
-	game.box.height = 10;
-	game.box.center.x = 120 + 5*65;
-	game.box.center.y = 500 - 5*60;
+	for (int i = 0; i < 5; i++) {
+		game.box[i].width = 100;
+		game.box[i].height = 15;
+		game.box[i].center.x = 120 + 5*65 - i * 50;
+		game.box[i].center.y = 500 - 5*60 + i * 100;
+	}
 
 	//start animation
 	while (!done) {
@@ -228,7 +230,7 @@ void check_mouse(XEvent *e, Game *game)
 		if (++n < 10)
 			return;
 			int y = WINDOW_HEIGHT - e->xbutton.y;
-			makeParticle(game, e->xbutton.x, y);
+			//makeParticle(game, e->xbutton.x, y);
 	}
 }
 
@@ -237,8 +239,22 @@ int check_keys(XEvent *e, Game *game)
 	//Was there input from the keyboard?
 	if (e->type == KeyPress) {
 		int key = XLookupKeysym(&e->xkey, 0);
+		bool spawner = false;
 		if (key == XK_Escape) {
 			return 1;
+		}
+		if (key == 'b') {
+			int y = WINDOW_HEIGHT - e->xbutton.y;
+			
+			spawner = true;
+			while(spawner) {
+				int count;
+				makeParticle(game, 80, 450);
+				count++;
+				if (count > 10) {
+					spawner = false;
+					}
+				}	
 		}
 		//You may check other keys here.
 
@@ -268,16 +284,21 @@ void movement(Game *game)
 
 
 	//changeass
-	//checks for partical hitting the shape ss then reverses the velocity of the partical 
-		Shape *s = &game->box;
+	//checks for partical hitting the shape ss then reverses the velocity of the partical
 
-		if(p->s.center.y < s->center.y + s->height &&
-			p->s.center.x > s->center.x - s ->width &&
-			p->s.center.x < s->center.x + s->width) {
-				p->s.center.y = s->center.y + s->height;
-				p->velocity.y = -p->velocity.y;
-				p->velocity.y *= 0.5;
+	Shape *s;
+ 
+		for (int j = 0; j < 4; j++) {
+			s = &game->box[j];
+
+			if(p->s.center.y < s->center.y + s->height &&
+				p->s.center.x > s->center.x - s ->width &&
+				p->s.center.x < s->center.x + s->width) {
+					p->s.center.y = s->center.y + s->height;
+					p->velocity.y = -p->velocity.y;
+					p->velocity.y *= 0.5;
 		}
+	}
 	
 
 	//check for off-screen
@@ -297,19 +318,29 @@ void render(Game *game)
 
 	//draw boxes
 	Shape *s;
-	glColor3ub(90,140,90);
-	s = &game->box;
-	glPushMatrix();
-	glTranslatef(s->center.x, s->center.y, s->center.z);
-	w = s->width;
-	h = s->height;
-	glBegin(GL_QUADS);
-		glVertex2i(-w,-h);
-		glVertex2i(-w, h);
-		glVertex2i( w, h);
-		glVertex2i( w,-h);
-	glEnd();
-	glPopMatrix();
+
+
+	//	game.box[i].center.x = 120 + 5*65 - i * 50;
+	//	game.box[i].center.y = 500 - 5*60 + i * 100;
+	
+	for( int i = 0; i < 4; i++) {
+		glColor3ub(90,140,90);
+		s = &game->box[i];
+		glPushMatrix();
+		glTranslatef(s->center.x, s->center.y, s->center.z);
+		w = s->width;
+		h = s->height;
+		glBegin(GL_QUADS);
+			glVertex2i(-w,-h);
+			glVertex2i(-w, h);
+			glVertex2i( w, h);
+			glVertex2i( w,-h);
+		glEnd();
+		glPopMatrix();
+
+	}
+	
+
 
 
 	//draw all particles here
