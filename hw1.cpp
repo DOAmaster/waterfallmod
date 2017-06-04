@@ -41,11 +41,15 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 
+#include "fonts.h"
+
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 
 #define MAX_PARTICLES 1000
 #define GRAVITY 0.1
+
+
 
 
 //X Windows variables
@@ -190,6 +194,9 @@ void init_opengl(void)
 	glOrtho(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT, -1, 1);
 	//Set the screen background color
 	glClearColor(0.1, 0.1, 0.1, 1.0);
+	//allow fonts
+	glEnable(GL_TEXTURE_2D);
+	initialize_fonts();
 }
 
 #define rnd() (float)rand() / (float)RAND_MAX
@@ -332,52 +339,15 @@ void movement(Game *game)
 void render(Game *game)
 {
 	float w, h;
+	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//draw text with glut
-	/*
-	for(int j = 0; j < 5; j++) {
+	unsigned int c = 0x00ffff44;
+	r.bot = 100 - 20;
+	r.left = 10;
+	r.center = 0;
 
-		glRasterPos2i(120, 500 - 5*60 + ( j * 50 ) );
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		
-
-		
-		char text1[] = "Requirements";
-		char text2[] = "Design";
-		char text3[] = "Coding";
-		char text4[] = "Testing";
-		char text5[] = "Maintence";
-
-		switch(j) { 
-			case 0:
-			for(int i = 0; text1[i] != '\0'; i++) {
-				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text1[i]);	
-			}
-			break;
-			case 1:
-			for(int i = 0; text2[i] != '\0'; i++) {
-				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text2[i]);	
-			}
-			break;
-			case 2:
-			for(int i = 0; text3[i] != '\0'; i++) {
-				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text3[i]);	
-			}
-			break;
-			case 3:
-			for(int i = 0; text4[i] != '\0'; i++) {
-				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text4[i]);	
-			}
-			break;
-			case 4:
-			for(int i = 0; text5[i] != '\0'; i++) {
-				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text5[i]);	
-			}
-			break;
-
-}
-*/
+	const char* text[5] = {"Maintence", "Testing", "Coding", "Design", "Requirements"};
 
 	//draw boxes
 	Shape *s;
@@ -404,21 +374,20 @@ void render(Game *game)
 			glVertex2i( w, h);
 			glVertex2i( w,-h);
 		glEnd();
+	//draw text with ggtext
+	r.bot = s->height - 10;
+	r.left = s->width - 150;
+	r.center = 0;
+	
+	ggprint8b(&r, 16, c, text[i]);	
 		glPopMatrix();
 
 	}
 	
 	//starts the spawner if b is pushed
-	if(game->spawner) {
-	
-	
-	makeParticle(game, 350, 600);
-
-
-	}
+	if(game->spawner) {makeParticle(game, 350, 600);}
 
 	//draw all particles here
-	
 	for (int i = 0; i < game->n; i++) {
 	glPushMatrix();
 	glColor3ub(150,160,220);
@@ -433,8 +402,4 @@ void render(Game *game)
 	glEnd();
 	glPopMatrix();
 	}
-
-
 }
-
-
