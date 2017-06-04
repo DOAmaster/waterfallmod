@@ -40,6 +40,10 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+#include <GL/glut.h>
+#include <GL/freeglut.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
@@ -100,6 +104,13 @@ int main(void)
 	srand(time(NULL));
 	initXWindows();
 	init_opengl();
+
+	//glut stuff
+	char *myargv [1];
+	int myargc = 1;
+	myargv [0] = strdup ("hw1");
+	
+	glutInit(&myargc ,myargv);
 	
 	//declare game object
 	Game game;
@@ -121,6 +132,17 @@ int main(void)
 	cleanupXWindows();
 	return 0;
 }
+
+//void print(int x, int y, int z, char *string) {
+//
+//	glRasterPos2f(x,y);
+//int len = (int) strlen(string);
+//
+//for(int i = 0; i < len; i ++) {
+//	glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_10, *string);
+//}
+
+//}
 
 
 
@@ -317,10 +339,55 @@ void render(Game *game)
 {
 	float w, h;
 	glClear(GL_COLOR_BUFFER_BIT);
-	//Draw shapes...
-	
+
+	//draw text
+
+	//char text[];
+
+	for(int j = 0; j < 5; j++) {
+
+		glRasterPos2i(120, 500 - 5*60 + ( j * 50 ) );
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		
+
+		
+		char text1[] = "Requirements";
+		char text2[] = "Design";
+		char text3[] = "Coding";
+		char text4[] = "Testing";
+		char text5[] = "Maintence";
+
+		switch(j) { 
+			case 0:
+			for(int i = 0; text1[i] != '\0'; i++) {
+				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text1[i]);	
+			}
+			break;
+			case 1:
+			for(int i = 0; text2[i] != '\0'; i++) {
+				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text2[i]);	
+			}
+			break;
+			case 2:
+			for(int i = 0; text3[i] != '\0'; i++) {
+				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text3[i]);	
+			}
+			break;
+			case 3:
+			for(int i = 0; text4[i] != '\0'; i++) {
+				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text4[i]);	
+			}
+			break;
+			case 4:
+			for(int i = 0; text5[i] != '\0'; i++) {
+				glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, text5[i]);	
+			}
+			break;
+
+}
 
 
+}
 	//draw boxes
 	Shape *s;
 	
