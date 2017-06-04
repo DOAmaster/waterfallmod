@@ -100,6 +100,7 @@ int main(void)
 	srand(time(NULL));
 	initXWindows();
 	init_opengl();
+	
 	//declare game object
 	Game game;
 	game.n=0;
@@ -120,6 +121,8 @@ int main(void)
 	cleanupXWindows();
 	return 0;
 }
+
+
 
 void set_title(void)
 {
@@ -315,6 +318,8 @@ void render(Game *game)
 	float w, h;
 	glClear(GL_COLOR_BUFFER_BIT);
 	//Draw shapes...
+	
+
 
 	//draw boxes
 	Shape *s;
