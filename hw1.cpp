@@ -40,10 +40,6 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
-#include <GL/glut.h>
-#include <GL/freeglut.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
@@ -105,12 +101,6 @@ int main(void)
 	initXWindows();
 	init_opengl();
 
-	//glut stuff
-	char *myargv [1];
-	int myargc = 1;
-	myargv [0] = strdup ("hw1");
-	
-	glutInit(&myargc ,myargv);
 	
 	//declare game object
 	Game game;
@@ -340,10 +330,8 @@ void render(Game *game)
 	float w, h;
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//draw text
-
-	//char text[];
-
+	//draw text with glut
+	/*
 	for(int j = 0; j < 5; j++) {
 
 		glRasterPos2i(120, 500 - 5*60 + ( j * 50 ) );
@@ -385,9 +373,8 @@ void render(Game *game)
 			break;
 
 }
+*/
 
-
-}
 	//draw boxes
 	Shape *s;
 	
