@@ -194,6 +194,9 @@ void init_opengl(void)
 
 #define rnd() (float)rand() / (float)RAND_MAX
 
+//external function found in particle.cpp
+extern void particleVelocity(Particle *p);
+
 void makeParticle(Game *game, int x, int y)
 {
 	if (game->n >= MAX_PARTICLES)
@@ -203,8 +206,9 @@ void makeParticle(Game *game, int x, int y)
 	Particle *p = &game->particle[game->n];
 	p->s.center.x = x;
 	p->s.center.y = y;
-	p->velocity.y = rnd() * 1.0 - .5;
-	p->velocity.x = rnd() * 1.0 - .5;
+//	p->velocity.y = rnd() * 1.0 - .5;
+//	p->velocity.x = rnd() * 1.0 - .5;
+	particleVelocity(p);
 	game->n++;
 }
 
