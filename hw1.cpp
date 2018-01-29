@@ -57,6 +57,15 @@ Display *dpy;
 Window win;
 GLXContext glc;
 
+enum State {
+	STATE_NONE,
+	STATE_STARTUP,
+	STATE_GAMEPLAY,
+	STATE_PAUSE,
+	STATE_GAMEOVER
+
+};
+
 //Structures
 
 struct Vec {
@@ -80,9 +89,14 @@ class Game {
 	Particle particle[MAX_PARTICLES];
 	int n;
 
+	State state;
+
 	bool spawner;
 
 	Game(){
+
+	    state = STATE_STARTUP;
+
 		spawner = false;
 		n = 0;
 	}
@@ -144,7 +158,7 @@ void set_title(void)
 {
 	//Set the window title bar.
 	XMapWindow(dpy, win);
-	XStoreName(dpy, win, "335 Lab1 DAlden LMB or B for particals");
+	XStoreName(dpy, win, "WaterFallMod");
 }
 
 void cleanupXWindows(void)
@@ -262,26 +276,10 @@ int check_keys(XEvent *e, Game *game) {
 		if (key == XK_Escape) {
 			return 1;
 		}
-		if (key == 'b') {
-			game->spawner = true;
-				makeParticle(game, 350, 600);
-
-		//	spawner = true;
-		//	while(spawner) {
-		//		makeParticle(game, 80, 750);
-			//	if (game->n >= MAX_PARTICLES) {
-			//	spawner = false;
-		//		}
-		//		break;
-				}
-
-			//	int count;
-			//	makeParticle(game, 80, 450);
-			//	count++;
-			//	if (count > game->n) {
-			//		spawner = false;
-			//		}
-			//	}	
+		if (key == 'p') { game->state = STATE_PAUSE; }
+		if (key == 'o') { game->state = STATE_GAMEPLAY; }
+		if (key == 'b') { game->spawner = true;}
+	
 		}
 		//You may check other keys here.
 
@@ -338,6 +336,46 @@ void movement(Game *game)
 
 void render(Game *game)
 {
+	if (game->state == STATE_STARTUP) {
+		game->state = STATE_GAMEPLAY;
+
+	}
+
+	if (game->state == STATE_PAUSE) {
+	
+		Rect newr;
+		newr.bot = 100-20;
+		newr.left = 10;
+		newr.center = 0;
+
+		float nw, nh;
+		nh = 100.0;
+		nw = 200.0;
+	//	glPushMatrix();
+	//	glEnable(GL_BLEND);
+	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
+		glColor4f(1.0, 1.0, 0.0, 0.8);
+		glTranslated(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, 0);
+		glBegin(GL_QUADS);
+			glVertex2i(-nw,  -nh);
+			glVertex2i(-nw,   nh);
+			glVertex2i( nw,    nh);
+			glVertex2i( nw,   -nh);
+		glEnd();
+	//	glDisable(GL_BLEND);
+		glPopMatrix();
+		newr.bot = WINDOW_WIDTH/2+80;
+		newr.left = WINDOW_HEIGHT/2;
+		newr.center = 1;
+		ggprint8b(&newr, 16, 0, "PAUSED");
+		newr.center = 0;
+		newr.left = WINDOW_HEIGHT/2-100;
+		ggprint8b(&newr, 16, 0, "P Pause");
+		ggprint8b(&newr, 16, 0, "O Play");
+		return;		
+	}
+	
 	float w, h;
 	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -351,7 +389,8 @@ void render(Game *game)
 
 	//draw boxes
 	Shape *s;
-	
+
+
 	//filling box array 
 	for (int i = 0; i < 6; i++) {
 		game->box[i].width = 100;
@@ -402,4 +441,5 @@ void render(Game *game)
 	glEnd();
 	glPopMatrix();
 	}
+	
 }
