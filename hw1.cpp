@@ -345,13 +345,14 @@ void setFrame(Game *game)
 //		game->box[i].center.y = 500 - 5*60 + ( i * 50 );
 //	}
 
-	game->box[1].width = WINDOW_WIDTH;
-	game->box[1].height = 15;
-	game->box[1].center.x = WINDOW_WIDTH/2;
-	game->box[1].center.y = 0;
+	//set up box 1
+	game->box[0].width = WINDOW_WIDTH;
+	game->box[0].height = 15;
+	game->box[0].center.x = WINDOW_WIDTH/2;
+	game->box[0].center.y = 0;
 
 
-	//drawing box 1 left
+	//drawing box 1 bottom
 		glColor3ub(90,140,90);
 		s = &game->box[0];
 		glPushMatrix();
@@ -366,7 +367,76 @@ void setFrame(Game *game)
 		glEnd();	
 		glPopMatrix();
 
-	
+	//set up box 2
+	game->box[1].width = 15;
+	game->box[1].height = WINDOW_HEIGHT;
+	game->box[1].center.x = 0;
+	game->box[1].center.y = 0;
+
+
+	//drawing box 2 left
+		glColor3ub(90,140,90);
+		s = &game->box[1];
+		glPushMatrix();
+		glTranslatef(s->center.x, s->center.y, s->center.z);
+		w = s->width;
+		h = s->height;
+		glBegin(GL_QUADS);
+			glVertex2i(-w,-h);
+			glVertex2i(-w, h);
+			glVertex2i( w, h);
+			glVertex2i( w,-h);
+		glEnd();	
+		glPopMatrix();
+
+
+	//set up box 3
+	game->box[2].width = 15;
+	game->box[2].height = WINDOW_HEIGHT;
+	game->box[2].center.x = WINDOW_WIDTH;
+	game->box[2].center.y = 0;
+
+
+	//drawing box 3 right
+		glColor3ub(90,140,90);
+		s = &game->box[2];
+		glPushMatrix();
+		glTranslatef(s->center.x, s->center.y, s->center.z);
+		w = s->width;
+		h = s->height;
+		glBegin(GL_QUADS);
+			glVertex2i(-w,-h);
+			glVertex2i(-w, h);
+			glVertex2i( w, h);
+			glVertex2i( w,-h);
+		glEnd();	
+		glPopMatrix();
+
+	//set up box 4
+	game->box[3].width = WINDOW_WIDTH;
+	game->box[3].height = 15;
+	game->box[3].center.x = WINDOW_WIDTH/2;
+	game->box[3].center.y = 0;
+
+
+
+
+	//drawing box 4 top
+		glColor3ub(90,140,90);
+		s = &game->box[3];
+		glPushMatrix();
+		glTranslatef(s->center.x, s->center.y, s->center.z);
+		w = s->width;
+		h = s->height;
+		glBegin(GL_QUADS);
+			glVertex2i(-w,-h);
+			glVertex2i(-w, h);
+			glVertex2i( w, h);
+			glVertex2i( w,-h);
+		glEnd();	
+		glPopMatrix();
+
+
 
 
 }
