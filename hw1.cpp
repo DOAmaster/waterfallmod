@@ -94,9 +94,7 @@ class Game {
 	bool spawner;
 
 	Game(){
-
-	    state = STATE_STARTUP;
-
+	    	state = STATE_STARTUP;
 		spawner = false;
 		n = 0;
 	}
@@ -158,7 +156,7 @@ void set_title(void)
 {
 	//Set the window title bar.
 	XMapWindow(dpy, win);
-	XStoreName(dpy, win, "WaterFallMod");
+	XStoreName(dpy, win, "OpenGL Wars");
 }
 
 void cleanupXWindows(void)
@@ -207,7 +205,8 @@ void init_opengl(void)
 	//Set 2D mode (no perspective)
 	glOrtho(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT, -1, 1);
 	//Set the screen background color
-	glClearColor(0.1, 0.1, 0.1, 1.0);
+	//currently dark blue
+	glClearColor(0.1, 0.1, 0.45, 1.0);
 	//allow fonts
 	glEnable(GL_TEXTURE_2D);
 	initialize_fonts();
@@ -276,7 +275,7 @@ int check_keys(XEvent *e, Game *game) {
 		if (key == XK_Escape) {
 			return 1;
 		}
-		if (key == 'p') { game->state = STATE_PAUSE; }
+		if (key == 'p') { if(game->state == STATE_PAUSE) {game->state = STATE_GAMEPLAY; } else {game->state = STATE_PAUSE;} }
 		if (key == 'o') { game->state = STATE_GAMEPLAY; }
 		if (key == 'b') { game->spawner = true;}
 	
@@ -302,12 +301,8 @@ void movement(Game *game)
 		p->velocity.y -= GRAVITY;
 		p->s.center.x += p->velocity.x;
 		p->s.center.y += p->velocity.y;
-
 	
 	//check for collision with shapes...
-	//Shape *s;
-
-
 	//checks for partical hitting the shape ss then reverses the velocity of the partical
 
 	Shape *s;
@@ -334,6 +329,48 @@ void movement(Game *game)
 	}
 }
 
+void setFrame(Game *game)
+{
+
+	//draw boxes
+	Shape *s;
+	float w, h;
+
+
+	//filling box array 
+//	for (int i = 0; i < 6; i++) {
+//		game->box[i].width = 100;
+//		game->box[i].height = 15;
+//		game->box[i].center.x = 120 + 5*65 - ( i * 30 );
+//		game->box[i].center.y = 500 - 5*60 + ( i * 50 );
+//	}
+
+	game->box[1].width = WINDOW_WIDTH;
+	game->box[1].height = 15;
+	game->box[1].center.x = WINDOW_WIDTH/2;
+	game->box[1].center.y = 0;
+
+
+	//drawing box 1 left
+		glColor3ub(90,140,90);
+		s = &game->box[0];
+		glPushMatrix();
+		glTranslatef(s->center.x, s->center.y, s->center.z);
+		w = s->width;
+		h = s->height;
+		glBegin(GL_QUADS);
+			glVertex2i(-w,-h);
+			glVertex2i(-w, h);
+			glVertex2i( w, h);
+			glVertex2i( w,-h);
+		glEnd();	
+		glPopMatrix();
+
+	
+
+
+}
+
 void render(Game *game)
 {
 	if (game->state == STATE_STARTUP) {
@@ -341,6 +378,8 @@ void render(Game *game)
 
 	}
 
+	//pause not working when unpaused
+	//could be if statement or state switching does not rerender
 	if (game->state == STATE_PAUSE) {
 	
 		Rect newr;
@@ -374,30 +413,33 @@ void render(Game *game)
 		ggprint8b(&newr, 16, 0, "P Pause");
 		ggprint8b(&newr, 16, 0, "O Play");
 		return;		
-	}
+	}else {
 	
 	float w, h;
-	Rect r;
+//	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	unsigned int c = 0x00ffff44;
-	r.bot = 100 - 20;
-	r.left = 10;
-	r.center = 0;
+//	unsigned int c = 0x00ffff44;
+//	r.bot = 100 - 20;
+//	r.left = 10;
+//	r.center = 0;
 
-	const char* text[5] = {"Maintence", "Testing", "Coding", "Design", "Requirements"};
+//	const char* text[5] = {"Maintence", "Testing", "Coding", "Design", "Requirements"};
 
 	//draw boxes
 	Shape *s;
 
 
+	setFrame(game);
 	//filling box array 
+	/*
 	for (int i = 0; i < 6; i++) {
 		game->box[i].width = 100;
 		game->box[i].height = 15;
 		game->box[i].center.x = 120 + 5*65 - ( i * 30 );
 		game->box[i].center.y = 500 - 5*60 + ( i * 50 );
 	}
+	*/
 
 	//drawing boxes
 	for( int i = 0; i < 5; i++) {
@@ -414,14 +456,15 @@ void render(Game *game)
 			glVertex2i( w,-h);
 		glEnd();
 	//draw text with ggtext
-	r.bot = s->height - 10;
-	r.left = s->width - 150;
-	r.center = 0;
+//	r.bot = s->height - 10;
+//	r.left = s->width - 150;
+//	r.center = 0;
 	
-	ggprint8b(&r, 16, c, text[i]);	
+//	ggprint8b(&r, 16, c, text[i]);	
 		glPopMatrix();
 
 	}
+	
 	
 	//starts the spawner if b is pushed
 	if(game->spawner) {makeParticle(game, 350, 600);}
@@ -440,6 +483,7 @@ void render(Game *game)
 		glVertex2i(c->x+w, c->y-h);
 	glEnd();
 	glPopMatrix();
+	}
 	}
 	
 }
