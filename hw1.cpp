@@ -49,8 +49,9 @@
 #define MAX_PARTICLES 1000
 #define GRAVITY 0.1
 
-
-
+//define types
+typedef float Flt;
+typedef Flt Matrix[4][4];
 
 //X Windows variables
 Display *dpy;
@@ -83,8 +84,32 @@ struct Particle {
 	Vec velocity;
 };
 
+class Player {
+public:
+	Vec dir;
+	Vec pos;
+	Vec vel;
+	float angle;
+	float color[3];
+	
+	Player() {
+//		VecZero(dir);
+//		dir[0] = 0.0f;
+//		dir[1] = 0.0f;
+//		dir[2] = 0.0f;
+//		pos[0] = (Flt)(WINDOW_WIDTH/2);
+//		pos[1] = (Flt)(WINDOW_HEIGHT/2);
+//		pos[2] = 0.0f;
+//		VecZero(vel);
+		angle = 0.0;
+		color[0] = color[1] = color[2] = 1.0;
+	}
+
+};
+
 class Game {
     public:
+	Player player;
 	Shape box[6];
 	Particle particle[MAX_PARTICLES];
 	int n;
