@@ -49,8 +49,18 @@
 #define MAX_PARTICLES 1000
 #define GRAVITY 0.1
 
+
+const float timeslice = 1.0f;
+const float gravity = -0.2f;
+#define PI 3.141592653589793
+#define ALPHA 1
+const int MAX_BULLETS = 11;
+
+
+
 //define types
 typedef float Flt;
+//typedef float Vec[3];
 typedef Flt Matrix[4][4];
 
 //X Windows variables
@@ -93,14 +103,9 @@ public:
 	float color[3];
 	
 	Player() {
-//		VecZero(dir);
-//		dir[0] = 0.0f;
-//		dir[1] = 0.0f;
-//		dir[2] = 0.0f;
-//		pos[0] = (Flt)(WINDOW_WIDTH/2);
-//		pos[1] = (Flt)(WINDOW_HEIGHT/2);
-//		pos[2] = 0.0f;
-//		VecZero(vel);
+		pos.x = (Flt)(WINDOW_WIDTH/2);
+		pos.y = (Flt)(WINDOW_HEIGHT/2);
+		pos.z = 0.0;
 		angle = 0.0;
 		color[0] = color[1] = color[2] = 1.0;
 	}
@@ -293,6 +298,62 @@ void check_mouse(XEvent *e, Game *game)
 	}
 }
 
+void normalize2d(Vec v)
+{
+	Flt len = v.x*v.x + v.y*v.y;
+	if (len == 0.0f) {
+		v.x = 1.0;
+		v.y = 0.0;
+		return;
+	}
+	len = 1.0f / sqrt(len);
+	v.x *= len;
+	v.y *= len;
+}
+
+
+
+void turnRight(Game *game)
+{
+	game->player.angle -= 8.0;
+	if (game->player.angle >= 360.0f)
+		game->player.angle -= 360.0f;
+
+}
+
+void turnLeft(Game *game)
+{
+	game->player.angle += 8.0;
+	if (game->player.angle >= 360.0f)
+		game->player.angle -= 360.0f;
+
+}
+
+void moveUp(Game *game)
+{
+		/*
+		//apply thrust method
+		//convert ship angle to radians
+		Flt rad = ((game->player.angle+90.0) / 360.0f) * PI * 2.0;
+		//convert angle to a vector
+		Flt xdir = cos(rad);
+		Flt ydir = sin(rad);
+		game->player.vel.x += xdir*0.02f;
+		game->player.vel.y += ydir*0.02f;
+		Flt speed = sqrt(game->player.vel.x*game->player.vel.x+
+				game->player.vel.x*game->player.vel.y);
+		if (speed > 5.0f) {
+			speed = 5.0f;
+			normalize2d(game->player.vel);
+			game->player.vel.x *= speed;
+			game->player.vel.y *= speed;
+		}
+		*/
+		game->player.pos.y += 1;
+
+}
+
+
 int check_keys(XEvent *e, Game *game) {
 	//Was there input from the keyboard?
 	if (e->type == KeyPress) {
@@ -300,6 +361,9 @@ int check_keys(XEvent *e, Game *game) {
 		if (key == XK_Escape) {
 			return 1;
 		}
+		if (key == 'a') { turnLeft(game); }
+		if (key == 'w') { moveUp(game); }
+		if (key == 'd') { turnRight(game); }
 		if (key == 'p') { if(game->state == STATE_PAUSE) {game->state = STATE_GAMEPLAY; } else {game->state = STATE_PAUSE;} }
 		if (key == 'o') { game->state = STATE_GAMEPLAY; }
 		if (key == 'b') { game->spawner = true;}
@@ -313,12 +377,53 @@ int check_keys(XEvent *e, Game *game) {
 	return 0;
 }
 
+
 void movement(Game *game)
 {
 	Particle *p;
 
+		
+	Flt d0,d1,dist;
+	//Update ship position
+	game->player.pos.x += game->player.vel.x;
+	game->player.pos.x += game->player.vel.y;
+
 	if (game->n <= 0)
 		return;
+
+	//check keys
+	//move with wsad
+/*
+	if (key == a) {
+		g.ship.angle += 4.0;
+		if (g.ship.angle >= 360.0f)
+			g.ship.angle -= 360.0f;
+	}
+	if (gl.keys[XK_d]) {
+		g.ship.angle -= 4.0;
+		if (g.ship.angle < 0.0f)
+			g.ship.angle += 360.0f;
+	}
+	if (gl.keys[XK_w]) {
+		//apply thrust
+		//convert ship angle to radians
+		Flt rad = ((g.ship.angle+90.0) / 360.0f) * PI * 2.0;
+		//convert angle to a vector
+		Flt xdir = cos(rad);
+		Flt ydir = sin(rad);
+		g.ship.vel[0] += xdir*0.02f;
+		g.ship.vel[1] += ydir*0.02f;
+		Flt speed = sqrt(g.ship.vel[0]*g.ship.vel[0]+
+				g.ship.vel[1]*g.ship.vel[1]);
+		if (speed > 5.0f) {
+			speed = 5.0f;
+			normalize2d(g.ship.vel);
+			g.ship.vel[0] *= speed;
+			g.ship.vel[1] *= speed;
+		}
+	}
+*/
+//======================================================================	
 
 	for (int i = 0; i < game->n; i++){
 
@@ -475,7 +580,7 @@ void render(Game *game)
 
 	//pause not working when unpaused
 	//could be if statement or state switching does not rerender
-	if (game->state == STATE_PAUSE) {
+/*	if (game->state == STATE_PAUSE) {
 	
 		Rect newr;
 		newr.bot = 100-20;
@@ -508,8 +613,8 @@ void render(Game *game)
 		ggprint8b(&newr, 16, 0, "P Pause");
 		ggprint8b(&newr, 16, 0, "O Play");
 		return;		
-	}else {
-	
+//	}else {
+	*/
 	float w, h;
 //	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -535,6 +640,31 @@ void render(Game *game)
 		game->box[i].center.y = 500 - 5*60 + ( i * 50 );
 	}
 	*/
+
+	//draw player
+	glColor3fv(game->player.color);
+	glPushMatrix();
+	glTranslatef(game->player.pos.x, game->player.pos.y, game->player.pos.z);
+	//float angle = atan2(ship.dir[1], ship.dir[0]);
+	glRotatef(game->player.angle, 0.0f, 0.0f, 1.0f);
+	glBegin(GL_TRIANGLES);
+	//glVertex2f(-10.0f, -10.0f);
+	//glVertex2f(  0.0f, 20.0f);
+	//glVertex2f( 10.0f, -10.0f);
+	glVertex2f(-12.0f, -10.0f);
+	glVertex2f(  0.0f, 20.0f);
+	glVertex2f(  0.0f, -6.0f);
+	glVertex2f(  0.0f, -6.0f);
+	glVertex2f(  0.0f, 20.0f);
+	glVertex2f( 12.0f, -10.0f);
+	glEnd();
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_POINTS);
+	glVertex2f(0.0f, 0.0f);
+	glEnd();
+	glPopMatrix();
+
+
 
 	//drawing boxes
 	for( int i = 0; i < 5; i++) {
@@ -579,6 +709,6 @@ void render(Game *game)
 	glEnd();
 	glPopMatrix();
 	}
-	}
+//	}
 	
 }
