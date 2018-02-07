@@ -123,7 +123,12 @@ class Game {
 
 	bool spawner;
 
+	unsigned char keys[65535];
+
+	bool leftUp;
+
 	Game(){
+	    	leftUp = 0;
 	    	state = STATE_STARTUP;
 		spawner = false;
 		n = 0;
@@ -313,7 +318,7 @@ void normalize2d(Vec v)
 
 
 
-void turnRight(Game *game)
+void moveRight(Game *game)
 {
     //rorate method
     /*
@@ -325,7 +330,7 @@ void turnRight(Game *game)
     game->player.pos.x += 5;
 }
 
-void turnLeft(Game *game)
+void moveLeft(Game *game)
 {
     //rotate method
     /*
@@ -356,8 +361,13 @@ void moveUp(Game *game)
 			game->player.vel.y *= speed;
 		}
 		*/
-		game->player.pos.y += 5;
+    		if (game->leftUp == 1) {
+			game->player.pos.y += 5;
+			game->player.pos.x -= 5;
 
+		} else {
+		    game->player.pos.y += 5;
+		}
 }
 
 void moveDown(Game *game)
@@ -386,15 +396,39 @@ void moveDown(Game *game)
 
 
 int check_keys(XEvent *e, Game *game) {
+
+    	//Was W + A pushed?
+	static int leftUp = 0;
+	if (e->type == KeyRelease) {
+
+		int key = XLookupKeysym(&e->xkey, 0);
+		game->keys[key]=0;
+		if (key == 'a') {
+			leftUp =0;
+			game->leftUp = 0;
+		}
+	}
+    	//Was W + A pushed?
+//	static int leftUp = 0;
+	if (e->type == KeyPress) {
+
+		int key = XLookupKeysym(&e->xkey, 0);
+		game->keys[key]=1;
+		if (key == 'a') {
+			leftUp = 1;
+			game->leftUp = 1;
+		}
+	}
+
 	//Was there input from the keyboard?
 	if (e->type == KeyPress) {
 		int key = XLookupKeysym(&e->xkey, 0);
 		if (key == XK_Escape) {
 			return 1;
 		}
-		if (key == 'a') { turnLeft(game); }
+		if (key == 'a') { moveLeft(game); }
 		if (key == 'w') { moveUp(game); }
-		if (key == 'd') { turnRight(game); }
+		if (key == 'd') { moveRight(game); }
 		if (key == 's') { moveDown(game); }
 		if (key == 'p') { if(game->state == STATE_PAUSE) {game->state = STATE_GAMEPLAY; } else {game->state = STATE_PAUSE;} }
 		if (key == 'o') { game->state = STATE_GAMEPLAY; }
