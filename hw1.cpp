@@ -42,7 +42,7 @@
 #include <GL/glx.h>
 #include <cstdio>
 
-#include "fonts.h"
+//#include "fonts.h"
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
@@ -126,17 +126,7 @@ class Game {
 
 	unsigned char keys[65535];
 
-
-	bool leftUp;
-	bool rightUp;
-	bool rightDown;
-	bool leftDown;
-
 	Game(){
-	    	rightUp = 0;
-		rightDown = 0;
-		leftDown = 0;
-	    	leftUp = 0;
 	    	state = STATE_STARTUP;
 		spawner = false;
 		n = 0;
@@ -252,7 +242,7 @@ void init_opengl(void)
 	glClearColor(0.1, 0.1, 0.45, 1.0);
 	//allow fonts
 	glEnable(GL_TEXTURE_2D);
-	initialize_fonts();
+//	initialize_fonts();
 }
 
 #define rnd() (float)rand() / (float)RAND_MAX
@@ -351,20 +341,9 @@ void moveLeft(Game *game)
 
 void moveUp(Game *game)
 {
-	// W + A is pressed	
-    		if (game->leftUp == 1) {
-			game->player.pos.y += 5;
-			game->player.pos.x -= 5;
-
-		}
-		if (game->rightUp ==1) {
-			game->player.pos.y += 5;
-			game->player.pos.x += 5;
-		}
-	       	else {
-		    // W forward
+	    // W forward
 		    game->player.pos.y += 5;
-		}
+		
 }
 
 void moveDown(Game *game)
@@ -387,18 +366,10 @@ void moveDown(Game *game)
 			game->player.vel.y *= speed;
 		}
 		*/
-    		if (game->leftDown == 1) {
-			game->player.pos.y -= 5;
-			game->player.pos.x -= 5;
-		}
-		if (game->rightDown == 1) {
-			game->player.pos.y -= 5;
-			game->player.pos.x += 5;
-		}
-		else {
+    	
 		game->player.pos.y -= 5;
 
-		}
+		
 }
 
 
@@ -412,17 +383,13 @@ int check_keys(XEvent *e, Game *game) {
 	if (e->type == KeyRelease) {
 		int key = XLookupKeysym(&e->xkey, 0);
 		game->keys[key]=0;
-		return 0;
 	}
     	
 	//Was 2 key movement pushed?
 	if (e->type == KeyPress) {
-
 		int key = XLookupKeysym(&e->xkey, 0);
 		game->keys[key]=1;
-		return 0;
-
-		}	
+	}	
 	
 
 	//Was there input from the keyboard?
@@ -435,8 +402,7 @@ int check_keys(XEvent *e, Game *game) {
 	//	if (key == 'w') { moveUp(game); }
 	//	if (key == 'd') { moveRight(game); }
 	//	if (key == 's') { moveDown(game); }
-		if (key == 'p') { if(game->state == STATE_PAUSE) {game->state = STATE_GAMEPLAY; } else {game->state = STATE_PAUSE;} }
-		if (key == 'o') { game->state = STATE_GAMEPLAY; }
+	//	if (key == 'o') { game->state = STATE_GAMEPLAY; }
 		if (key == 'b') { game->spawner = true;}
 	
 		}
@@ -493,7 +459,7 @@ void movement(Game *game)
 	//move with wsad
 	
 	if (game->keys[XK_a]) {
-	    	printf("I am in the movement left\n");
+	    //	printf("I am in the movement left\n");
 		moveLeft(game);
 	}
 /*
