@@ -315,18 +315,25 @@ void normalize2d(Vec v)
 
 void turnRight(Game *game)
 {
+    //rorate method
+    /*
 	game->player.angle -= 8.0;
 	if (game->player.angle >= 360.0f)
 		game->player.angle -= 360.0f;
 
+	*/
+    game->player.pos.x += 5;
 }
 
 void turnLeft(Game *game)
 {
+    //rotate method
+    /*
 	game->player.angle += 8.0;
 	if (game->player.angle >= 360.0f)
 		game->player.angle -= 360.0f;
-
+	*/
+    game->player.pos.x -= 5;
 }
 
 void moveUp(Game *game)
@@ -349,7 +356,31 @@ void moveUp(Game *game)
 			game->player.vel.y *= speed;
 		}
 		*/
-		game->player.pos.y += 1;
+		game->player.pos.y += 5;
+
+}
+
+void moveDown(Game *game)
+{
+		/*
+		//apply thrust method
+		//convert ship angle to radians
+		Flt rad = ((game->player.angle+90.0) / 360.0f) * PI * 2.0;
+		//convert angle to a vector
+		Flt xdir = cos(rad);
+		Flt ydir = sin(rad);
+		game->player.vel.x += xdir*0.02f;
+		game->player.vel.y += ydir*0.02f;
+		Flt speed = sqrt(game->player.vel.x*game->player.vel.x+
+				game->player.vel.x*game->player.vel.y);
+		if (speed > 5.0f) {
+			speed = 5.0f;
+			normalize2d(game->player.vel);
+			game->player.vel.x *= speed;
+			game->player.vel.y *= speed;
+		}
+		*/
+		game->player.pos.y -= 5;
 
 }
 
@@ -364,6 +395,7 @@ int check_keys(XEvent *e, Game *game) {
 		if (key == 'a') { turnLeft(game); }
 		if (key == 'w') { moveUp(game); }
 		if (key == 'd') { turnRight(game); }
+		if (key == 's') { moveDown(game); }
 		if (key == 'p') { if(game->state == STATE_PAUSE) {game->state = STATE_GAMEPLAY; } else {game->state = STATE_PAUSE;} }
 		if (key == 'o') { game->state = STATE_GAMEPLAY; }
 		if (key == 'b') { game->spawner = true;}
