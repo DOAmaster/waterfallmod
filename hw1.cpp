@@ -40,6 +40,7 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+#include <cstdio>
 
 #include "fonts.h"
 
@@ -125,9 +126,16 @@ class Game {
 
 	unsigned char keys[65535];
 
+
 	bool leftUp;
+	bool rightUp;
+	bool rightDown;
+	bool leftDown;
 
 	Game(){
+	    	rightUp = 0;
+		rightDown = 0;
+		leftDown = 0;
 	    	leftUp = 0;
 	    	state = STATE_STARTUP;
 		spawner = false;
@@ -343,29 +351,18 @@ void moveLeft(Game *game)
 
 void moveUp(Game *game)
 {
-		/*
-		//apply thrust method
-		//convert ship angle to radians
-		Flt rad = ((game->player.angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = cos(rad);
-		Flt ydir = sin(rad);
-		game->player.vel.x += xdir*0.02f;
-		game->player.vel.y += ydir*0.02f;
-		Flt speed = sqrt(game->player.vel.x*game->player.vel.x+
-				game->player.vel.x*game->player.vel.y);
-		if (speed > 5.0f) {
-			speed = 5.0f;
-			normalize2d(game->player.vel);
-			game->player.vel.x *= speed;
-			game->player.vel.y *= speed;
-		}
-		*/
+	// W + A is pressed	
     		if (game->leftUp == 1) {
 			game->player.pos.y += 5;
 			game->player.pos.x -= 5;
 
-		} else {
+		}
+		if (game->rightUp ==1) {
+			game->player.pos.y += 5;
+			game->player.pos.x += 5;
+		}
+	       	else {
+		    // W forward
 		    game->player.pos.y += 5;
 		}
 }
@@ -390,35 +387,43 @@ void moveDown(Game *game)
 			game->player.vel.y *= speed;
 		}
 		*/
+    		if (game->leftDown == 1) {
+			game->player.pos.y -= 5;
+			game->player.pos.x -= 5;
+		}
+		if (game->rightDown == 1) {
+			game->player.pos.y -= 5;
+			game->player.pos.x += 5;
+		}
+		else {
 		game->player.pos.y -= 5;
 
+		}
 }
 
 
 int check_keys(XEvent *e, Game *game) {
 
-    	//Was W + A pushed?
-	static int leftUp = 0;
-	if (e->type == KeyRelease) {
+    	//keyboard input?
+    //	static int shift=0;
+    	//Was 2 key movement released?
+//	int key = XLookupKeysym(&e->xkey, 0);
 
+	if (e->type == KeyRelease) {
 		int key = XLookupKeysym(&e->xkey, 0);
 		game->keys[key]=0;
-		if (key == 'a') {
-			leftUp =0;
-			game->leftUp = 0;
-		}
+		return 0;
 	}
-    	//Was W + A pushed?
-//	static int leftUp = 0;
+    	
+	//Was 2 key movement pushed?
 	if (e->type == KeyPress) {
 
 		int key = XLookupKeysym(&e->xkey, 0);
 		game->keys[key]=1;
-		if (key == 'a') {
-			leftUp = 1;
-			game->leftUp = 1;
-		}
-	}
+		return 0;
+
+		}	
+	
 
 	//Was there input from the keyboard?
 	if (e->type == KeyPress) {
@@ -426,10 +431,10 @@ int check_keys(XEvent *e, Game *game) {
 		if (key == XK_Escape) {
 			return 1;
 		}
-		if (key == 'a') { moveLeft(game); }
-		if (key == 'w') { moveUp(game); }
-		if (key == 'd') { moveRight(game); }
-		if (key == 's') { moveDown(game); }
+	//	if (key == 'a') { moveLeft(game); }
+	//	if (key == 'w') { moveUp(game); }
+	//	if (key == 'd') { moveRight(game); }
+	//	if (key == 's') { moveDown(game); }
 		if (key == 'p') { if(game->state == STATE_PAUSE) {game->state = STATE_GAMEPLAY; } else {game->state = STATE_PAUSE;} }
 		if (key == 'o') { game->state = STATE_GAMEPLAY; }
 		if (key == 'b') { game->spawner = true;}
@@ -437,9 +442,6 @@ int check_keys(XEvent *e, Game *game) {
 		}
 		//You may check other keys here.
 
-
-
-	
 	return 0;
 }
 
@@ -448,20 +450,55 @@ void movement(Game *game)
 {
 	Particle *p;
 
+	//do key presses checks here for multiable keys
 		
-	Flt d0,d1,dist;
-	//Update ship position
-	game->player.pos.x += game->player.vel.x;
-	game->player.pos.x += game->player.vel.y;
+//	Flt d0,d1,dist;
 
 	if (game->n <= 0)
 		return;
 
+	for (int i = 0; i < game->n; i++){
+
+		p = &game->particle[i];
+		p->velocity.y -= GRAVITY;
+		p->s.center.x += p->velocity.x;
+		p->s.center.y += p->velocity.y;
+	
+	//check for collision with shapes...
+	//checks for partical hitting the shape ss then reverses the velocity of the partical
+
+	Shape *s;
+
+		for (int j = 0; j < 5; j++) {
+			s = &game->box[j];
+
+			if(p->s.center.y < s->center.y + s->height &&
+				p->s.center.x > s->center.x - s ->width &&
+				p->s.center.x < s->center.x + s->width) {
+					p->s.center.y = s->center.y + s->height;
+					p->velocity.y = -p->velocity.y;
+					p->velocity.y *= 0.5;
+		}
+	}
+	
+	//check for off-screen
+		if (p->s.center.y < 0.0 || p->s.center.y > WINDOW_HEIGHT) {
+			//std::cout << "off screen" << std::endl;
+			game->particle[i] = game->particle[ game->n-1 ];
+			game->n--;
+		}
+	}
+
 	//check keys
 	//move with wsad
+	
+	if (game->keys[XK_a]) {
+	    	printf("I am in the movement left\n");
+		moveLeft(game);
+	}
 /*
 	if (key == a) {
-		g.ship.angle += 4.0;
+		/g.ship.angle += 4.0;
 		if (g.ship.angle >= 360.0f)
 			g.ship.angle -= 360.0f;
 	}
@@ -490,39 +527,11 @@ void movement(Game *game)
 	}
 */
 //======================================================================	
+//
+	//Update ship position
+	game->player.pos.x += game->player.vel.x;
+	game->player.pos.x += game->player.vel.y;
 
-	for (int i = 0; i < game->n; i++){
-
-		p = &game->particle[i];
-		p->velocity.y -= GRAVITY;
-		p->s.center.x += p->velocity.x;
-		p->s.center.y += p->velocity.y;
-	
-	//check for collision with shapes...
-	//checks for partical hitting the shape ss then reverses the velocity of the partical
-
-	Shape *s;
- 
-		for (int j = 0; j < 5; j++) {
-			s = &game->box[j];
-
-			if(p->s.center.y < s->center.y + s->height &&
-				p->s.center.x > s->center.x - s ->width &&
-				p->s.center.x < s->center.x + s->width) {
-					p->s.center.y = s->center.y + s->height;
-					p->velocity.y = -p->velocity.y;
-					p->velocity.y *= 0.5;
-		}
-	}
-	
-
-	//check for off-screen
-		if (p->s.center.y < 0.0 || p->s.center.y > WINDOW_HEIGHT) {
-			//std::cout << "off screen" << std::endl;
-			game->particle[i] = game->particle[ game->n-1 ];
-			game->n--;
-		}
-	}
 }
 
 void setFrame(Game *game)
