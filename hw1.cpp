@@ -1,37 +1,8 @@
 //modified by: Derrick Alden
-//date:
-//purpose:
-//
-//cs3350 Spring 2017 Lab-1
+//purpose: OpenGL Wars game
 //author: Gordon Griesel
-//date: 2014 to present
-//This program demonstrates the use of OpenGL and XWindows
-//
-//Assignment is to modify this program.
-//You will follow along with your instructor.
-//
-//Elements to be learned in this lab...
-//
-//. general animation framework
-//. animation loop
-//. object definition and movement
-//. collision detection
-//. mouse/keyboard interaction
-//. object constructor
-//. coding style
-//. defined constants
-//. use of static variables
-//. dynamic memory allocation
-//. simple opengl components
-//. git
-//
-//elements we will add to program...
-//. Game constructor
-//. multiple particles
-//. gravity
-//. collision detection
-//. more objects
-//
+//repo: http://www.github.com/doamaster/waterfallmod
+
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
@@ -46,18 +17,14 @@
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
-
 #define MAX_PARTICLES 1000
 #define GRAVITY 0.1
-
 
 const float timeslice = 1.0f;
 const float gravity = -0.2f;
 #define PI 3.141592653589793
 #define ALPHA 1
 const int MAX_BULLETS = 11;
-
-
 
 //define types
 typedef float Flt;
@@ -336,46 +303,18 @@ void moveRight(Game *game)
 
 void moveLeft(Game *game)
 {
-    //rotate method
-    /*
-	game->player.angle += 8.0;
-	if (game->player.angle >= 360.0f)
-		game->player.angle -= 360.0f;
-	*/
-    game->player.pos.x -= 5;
+	game->player.pos.x -= 5;
 }
 
 void moveUp(Game *game)
 {
-	    // W forward
-		    game->player.pos.y += 5;
-		
+  	// W forward
+	game->player.pos.y += 5;
 }
 
 void moveDown(Game *game)
 {
-		/*
-		//apply thrust method
-		//convert ship angle to radians
-		Flt rad = ((game->player.angle+90.0) / 360.0f) * PI * 2.0;
-		//convert angle to a vector
-		Flt xdir = cos(rad);
-		Flt ydir = sin(rad);
-		game->player.vel.x += xdir*0.02f;
-		game->player.vel.y += ydir*0.02f;
-		Flt speed = sqrt(game->player.vel.x*game->player.vel.x+
-				game->player.vel.x*game->player.vel.y);
-		if (speed > 5.0f) {
-			speed = 5.0f;
-			normalize2d(game->player.vel);
-			game->player.vel.x *= speed;
-			game->player.vel.y *= speed;
-		}
-		*/
-    	
-		game->player.pos.y -= 5;
-
-		
+	game->player.pos.y -= 5;
 }
 
 
@@ -404,15 +343,9 @@ int check_keys(XEvent *e, Game *game) {
 		if (key == XK_Escape) {
 			return 1;
 		}
-	//	if (key == 'a') { moveLeft(game); }
-	//	if (key == 'w') { moveUp(game); }
-	//	if (key == 'd') { moveRight(game); }
-	//	if (key == 's') { moveDown(game); }
-	//	if (key == 'o') { game->state = STATE_GAMEPLAY; }
 		if (key == 'b') { game->spawner = true;}
 	
 		}
-		//You may check other keys here.
 
 	return 0;
 }
@@ -463,6 +396,7 @@ void movement(Game *game)
 	//////////////////////////////////////////
 	//check keys
 	//movment
+	//TODO add checks for A+D and D+A to not stop player
 	///////////////////////////////////////////
 	if (game->keys[XK_a]) {
 	    //	printf("I am in the movement left\n");
@@ -477,23 +411,15 @@ void movement(Game *game)
 		if(game->keys[XK_a] && game->keys[XK_d]) {
 			moveLeft(game);
 		}else {
-
 	    		moveRight(game);
 		}
-
 	}
-
-
 	if (game->keys[XK_w]) {
 		moveUp(game);
 	}
 	if (game->keys[XK_s]) {
 		moveDown(game);
 	}
-
-
-
-
 
 //	if(game->keys[XK_w] && game->keys[XK_a]) {
 //		moveLeftUp(game);	
@@ -529,10 +455,29 @@ void movement(Game *game)
 	}
 */
 //======================================================================	
+// check for colide with boxes
 //
-	//Update ship position
-	game->player.pos.x += game->player.vel.x;
-	game->player.pos.x += game->player.vel.y;
+//TODO player collides with side of box then teleported up
+//	fix so they are locked in their pos when hit
+	Shape *s;
+
+		for (int j = 0; j < 5; j++) {
+			s = &game->box[j];
+
+			if(game->player.pos.y < s->center.y + s->height &&
+				game->player.pos.x > s->center.x - s ->width &&
+				game->player.pos.x < s->center.x + s->width) {
+					game->player.pos.y = s->center.y + s->height;
+				//	p->velocity.y = -p->velocity.y;
+				//	p->velocity.y *= 0.5;
+			//	game->state = STATE_GAMEOVER;
+		}
+	}
+
+//=====================================================================
+	//Update ship position of velocity (no longer in use)
+//	game->player.pos.x += game->player.vel.x;
+//	game->player.pos.x += game->player.vel.y;
 
 }
 
@@ -620,13 +565,12 @@ void setFrame(Game *game)
 		glPopMatrix();
 
 	//set up box 4
+	//this breaks the game sometimes
+	/*
 	game->box[3].width = WINDOW_WIDTH;
 	game->box[3].height = 15;
 	game->box[3].center.x = WINDOW_WIDTH/2;
-	game->box[3].center.y = 0;
-
-
-
+	game->box[3].center.y = WINDOW_HEIGHT-15;
 
 	//drawing box 4 top
 		glColor3ub(90,140,90);
@@ -642,17 +586,44 @@ void setFrame(Game *game)
 			glVertex2i( w,-h);
 		glEnd();	
 		glPopMatrix();
-
-
-
-
+	*/
 }
 
 void render(Game *game)
 {
 	if (game->state == STATE_STARTUP) {
-		game->state = STATE_GAMEPLAY;
 
+	//draw player
+	glColor3fv(game->player.color);
+	glPushMatrix();
+	glTranslatef(game->player.pos.x, game->player.pos.y, game->player.pos.z);
+	//float angle = atan2(ship.dir[1], ship.dir[0]);
+	glRotatef(game->player.angle, 0.0f, 0.0f, 1.0f);
+	glBegin(GL_TRIANGLES);
+	//glVertex2f(-10.0f, -10.0f);
+	//glVertex2f(  0.0f, 20.0f);
+	//glVertex2f( 10.0f, -10.0f);
+	glVertex2f(-12.0f, -10.0f);
+	glVertex2f(  0.0f, 20.0f);
+	glVertex2f(  0.0f, -6.0f);
+	glVertex2f(  0.0f, -6.0f);
+	glVertex2f(  0.0f, 20.0f);
+	glVertex2f( 12.0f, -10.0f);
+	glEnd();
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glBegin(GL_POINTS);
+	glVertex2f(0.0f, 0.0f);
+	glEnd();
+	glPopMatrix();
+
+	//start the gameplay
+	game->state = STATE_GAMEPLAY;
+
+	}
+
+	if (game->state == STATE_GAMEOVER) {
+	        
+		game->state = STATE_STARTUP;
 	}
 
 	//pause not working when unpaused
