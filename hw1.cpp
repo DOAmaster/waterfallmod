@@ -314,6 +314,12 @@ void normalize2d(Vec v)
 	v.y *= len;
 }
 
+void moveLeftUp(Game *game)
+{
+
+	game->player.pos.y += 5;
+	game->player.pos.x -= 5;
+}
 
 
 void moveRight(Game *game)
@@ -454,14 +460,44 @@ void movement(Game *game)
 			game->n--;
 		}
 	}
-
+	//////////////////////////////////////////
 	//check keys
-	//move with wsad
-	
+	//movment
+	///////////////////////////////////////////
 	if (game->keys[XK_a]) {
 	    //	printf("I am in the movement left\n");
-		moveLeft(game);
+		if(game->keys[XK_d] && game->keys[XK_a]) {
+			moveRight(game);
+		}else {
+			moveLeft(game);
+		}
 	}
+
+	 if (game->keys[XK_d]) {
+		if(game->keys[XK_a] && game->keys[XK_d]) {
+			moveLeft(game);
+		}else {
+
+	    		moveRight(game);
+		}
+
+	}
+
+
+	if (game->keys[XK_w]) {
+		moveUp(game);
+	}
+	if (game->keys[XK_s]) {
+		moveDown(game);
+	}
+
+
+
+
+
+//	if(game->keys[XK_w] && game->keys[XK_a]) {
+//		moveLeftUp(game);	
+//	}
 /*
 	if (key == a) {
 		/g.ship.angle += 4.0;
