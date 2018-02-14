@@ -396,7 +396,6 @@ void movement(Game *game)
 	//////////////////////////////////////////
 	//check keys
 	//movment
-	//TODO add checks for A+D and D+A to not stop player
 	///////////////////////////////////////////
 	if (game->keys[XK_a]) {
 	    //	printf("I am in the movement left\n");
@@ -405,9 +404,7 @@ void movement(Game *game)
 		}else {
 			moveLeft(game);
 		}
-	}
-
-	 if (game->keys[XK_d]) {
+	} else if (game->keys[XK_d]) {
 		if(game->keys[XK_a] && game->keys[XK_d]) {
 			moveLeft(game);
 		}else {
@@ -464,14 +461,23 @@ void movement(Game *game)
 		for (int j = 0; j < 5; j++) {
 			s = &game->box[j];
 
+			//collide with top
 			if(game->player.pos.y < s->center.y + s->height &&
 				game->player.pos.x > s->center.x - s ->width &&
 				game->player.pos.x < s->center.x + s->width) {
 					game->player.pos.y = s->center.y + s->height;
-				//	p->velocity.y = -p->velocity.y;
-				//	p->velocity.y *= 0.5;
-			//	game->state = STATE_GAMEOVER;
 		}
+
+
+			//collide with top
+			/*
+			if(game->player.pos.y < s->center.y + s->height &&
+				game->player.pos.x > s->center.x - s ->width &&
+				game->player.pos.x < s->center.x + s->width) {
+					game->player.pos.y = s->center.y + s->height;
+		}
+		*/
+
 	}
 
 //=====================================================================
