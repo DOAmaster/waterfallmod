@@ -12,6 +12,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include <cstdio>
+#include <math.h>
 
 //#include "fonts.h"
 
@@ -284,8 +285,10 @@ void normalize2d(Vec v)
 void moveLeftUp(Game *game)
 {
 
-	game->player.pos.y += 5;
-	game->player.pos.x -= 5;
+	if(game->state == STATE_GAMEPLAY) {
+		game->player.pos.y += 5;
+		game->player.pos.x -= 5;
+	}
 }
 
 
@@ -298,23 +301,34 @@ void moveRight(Game *game)
 		game->player.angle -= 360.0f;
 
 	*/
-    game->player.pos.x += 5;
+
+	if(game->state == STATE_GAMEPLAY) {
+    		game->player.pos.x += 5;
+	}
 }
 
 void moveLeft(Game *game)
 {
-	game->player.pos.x -= 5;
+
+	if(game->state == STATE_GAMEPLAY) {
+		game->player.pos.x -= 5;
+	}
 }
 
 void moveUp(Game *game)
 {
   	// W forward
-	game->player.pos.y += 5;
+
+	if(game->state == STATE_GAMEPLAY) {
+		game->player.pos.y += 5;
+	}
 }
 
 void moveDown(Game *game)
 {
-	game->player.pos.y -= 5;
+	if(game->state == STATE_GAMEPLAY) {
+		game->player.pos.y -= 5;
+	}
 }
 
 
@@ -344,6 +358,8 @@ int check_keys(XEvent *e, Game *game) {
 			return 1;
 		}
 		if (key == 'b') { game->spawner = true;}
+		if (key == 'o') { game->state = STATE_PAUSE;}
+		if (key == 'p') { game->state = STATE_GAMEPLAY;}
 	
 		}
 
@@ -354,6 +370,7 @@ int check_keys(XEvent *e, Game *game) {
 void movement(Game *game)
 {
 	Particle *p;
+	
 
 	//do key presses checks here for multiable keys
 		
@@ -597,6 +614,37 @@ void setFrame(Game *game)
 
 void render(Game *game)
 {
+
+	float h = 200.0;
+	float w = h * 0.5;
+	glPushMatrix();
+if (game->state == STATE_PAUSE) {
+		h = 100.0;
+		w = 200.0;
+	//	glPushMatrix();
+	//	glEnable(GL_BLEND);
+	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
+		glColor4f(1.0, 1.0, 0.0, 0.8);
+		glTranslated(WINDOW_WIDTH/2, WINDOW_HEIGHT/2, 0);
+		glBegin(GL_QUADS);
+			glVertex2i(-w,  -h);
+			glVertex2i(-w,   h);
+			glVertex2i( w,    h);
+			glVertex2i( w,   -h);
+		glEnd();
+	//	glDisable(GL_BLEND);
+		glPopMatrix();
+//		r.bot = WINDOW_WIDTH/2 + 80;
+//		r.left = WINDOW_HEIGHT/2;
+//		r.center = 1;
+		//ggprint8b(&r, 16, 0, "PAUSED");
+//		r.center = 0;
+//		r.left = WINDOW_WIDTH/2 - 100;
+		//ggprint8b(&r, 16, 0, "P Play");
+		return;		
+}
+
 	if (game->state == STATE_STARTUP) {
 
 	//draw player
@@ -669,7 +717,7 @@ void render(Game *game)
 		return;		
 //	}else {
 	*/
-	float w, h;
+//	float w, h;
 //	Rect r;
 	glClear(GL_COLOR_BUFFER_BIT);
 
