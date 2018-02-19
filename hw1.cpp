@@ -480,9 +480,16 @@ void movement(Game *game)
 
 			//collide with top
 			if(game->player.pos.y < s->center.y + s->height &&
-				game->player.pos.x > s->center.x - s ->width &&
+				game->player.pos.x > s->center.x - s->width &&
 				game->player.pos.x < s->center.x + s->width) {
 					game->player.pos.y = s->center.y + s->height;
+		}
+
+			//collide with right side
+			if(game->player.pos.x > s->center.x + s->height &&
+				game->player.pos.y > s->center.y - s->width &&
+				game->player.pos.y < s->center.y + s->width) {
+					game->player.pos.x = s->center.x + s->height;
 		}
 
 
