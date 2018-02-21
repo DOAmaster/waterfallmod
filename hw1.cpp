@@ -473,17 +473,22 @@ void movement(Game *game)
 //
 //TODO player collides with side of box then teleported up
 //	fix so they are locked in their pos when hit
+//	maybe check each box outside the loop
 	Shape *s;
+	s = &game->box[0];
+			//collide with right side of box
+			if(game->player.pos.x < s->center.x + s->height &&
+				game->player.pos.y > s->center.y - s->width &&
+				game->player.pos.y < s->center.y + s->width) {
+			    		printf("inside right collide if\n");
+					game->player.pos.x = s->center.x + s->height;
+		}
+
+/*
 
 		for (int j = 0; j < 5; j++) {
 			s = &game->box[j];
 
-			//collide with top side of box
-			if(game->player.pos.y < s->center.y + s->height &&
-				game->player.pos.x > s->center.x - s->width &&
-				game->player.pos.x < s->center.x + s->width) {
-					game->player.pos.y = s->center.y + s->height;
-		}
 
 			//collide with right side of box
 			if(game->player.pos.x < s->center.x + s->height &&
@@ -495,23 +500,28 @@ void movement(Game *game)
 
 			//collide with left side of box
 			if(game->player.pos.x < s->center.x + s->height &&
-				game->player.pos.y < s->center.y - s->width &&
-				game->player.pos.y > s->center.y + s->width) {
+				game->player.pos.y > s->center.y - s->width &&
+				game->player.pos.y < s->center.y + s->width) {
 			    		printf("inside left collide if\n");
 					game->player.pos.x = s->center.x + s->height;
 		}
 
-
-			//collide with top
-			/*
+			//collide with top side of box
+			//something is broken here, does not work with player below
 			if(game->player.pos.y < s->center.y + s->height &&
-				game->player.pos.x > s->center.x - s ->width &&
+				game->player.pos.x > s->center.x - s->width &&
 				game->player.pos.x < s->center.x + s->width) {
+			    		printf("inside top collide if\n");
 					game->player.pos.y = s->center.y + s->height;
 		}
-		*/
+
+
+			
+		}
+		
 
 	}
+*/
 
 //=====================================================================
 	//Update ship position of velocity (no longer in use)
