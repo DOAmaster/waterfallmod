@@ -478,17 +478,26 @@ void movement(Game *game)
 		for (int j = 0; j < 5; j++) {
 			s = &game->box[j];
 
-			//collide with top
+			//collide with top side of box
 			if(game->player.pos.y < s->center.y + s->height &&
 				game->player.pos.x > s->center.x - s->width &&
 				game->player.pos.x < s->center.x + s->width) {
 					game->player.pos.y = s->center.y + s->height;
 		}
 
-			//collide with right side
-			if(game->player.pos.x > s->center.x + s->height &&
+			//collide with right side of box
+			if(game->player.pos.x < s->center.x + s->height &&
 				game->player.pos.y > s->center.y - s->width &&
 				game->player.pos.y < s->center.y + s->width) {
+			    		printf("inside right collide if\n");
+					game->player.pos.x = s->center.x + s->height;
+		}
+
+			//collide with left side of box
+			if(game->player.pos.x < s->center.x + s->height &&
+				game->player.pos.y < s->center.y - s->width &&
+				game->player.pos.y > s->center.y + s->width) {
+			    		printf("inside left collide if\n");
 					game->player.pos.x = s->center.x + s->height;
 		}
 
@@ -530,7 +539,7 @@ void setFrame(Game *game)
 	//set up box 1
 	game->box[0].width = WINDOW_WIDTH;
 	game->box[0].height = 15;
-	game->box[0].center.x = WINDOW_WIDTH/2;
+	game->box[0].center.x = 0;
 	game->box[0].center.y = 0;
 
 
@@ -575,7 +584,7 @@ void setFrame(Game *game)
 	//set up box 3
 	game->box[2].width = 15;
 	game->box[2].height = WINDOW_HEIGHT;
-	game->box[2].center.x = WINDOW_WIDTH;
+	game->box[2].center.x = 800;
 	game->box[2].center.y = 0;
 
 
